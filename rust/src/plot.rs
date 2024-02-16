@@ -8,7 +8,7 @@ pub fn plot<X, Y>(name: &str, data: Vec<(X, Y)>) -> Result<(), Box<dyn Error>>
         X: AsPrimitive<f64> +,
         Y: AsPrimitive<f64>,
 {
-    let path = format!("{}.png", name);
+    let path = format!("plots/{}.png", name);
     let root = BitMapBackend::new(&path, (640, 480)).into_drawing_area();
     root.fill(&WHITE)?;
 

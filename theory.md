@@ -114,12 +114,11 @@ returning: 3
 The Coins(n) recurrence correctly solves the coin change problem because it explores all possible combinations of using the three types of coins to make up the amount n. It «checks the minimum number of coins needed by considering each coin type and reducing the problem to a smaller subproblem (n-a, n-b, and n-c). The base case ensures correct termination, and the recurrence relation correctly accumulates the minimum number of coins needed.
 
 4. *Suppose we were trying to solve a variant of the coin change problem where we only had silver, gold and platinum coins at our disposal, no copper coins.  How would the recurrence describing the answer to the problem change in this variant?*
-
-If we were to solve a variant with only silver, gold, and platinum coins and no copper coins, the recurrence would change to exclude the case for copper coins. Assuming silver, gold, and platinum have values a, b, and c respectively, the recurrence would be similar but without the +1 for the copper coin case.
+It would work as wells as the alrothim returns inf when n < 0. So when n reaches a values which is less than all currencies, silver, gold and platinum, the alorithim would return inf and would not be chosen as an option when min() is applied.
 
 5. *Study the function f(x, y) defined in subproblem 2(a). What does the value of f(x, y) represent, in words? Argue why computing f(n, k) gives a solution to the problem.*
 
-The function f(x, y) represents the probability of having a winning streak of exactly y games in a series after x games have been played.
+The function f(x, y) represents the probability of having a winning streak of exactly y games in a series after x games have been played, implying if the streak is greater than 0, y > 0, the last game have to been won. 
 
 6. *Of the five different programs that you will write (in problems 1(a), 1(c), 1(e), 2(a), and 2(c)), which ones will have exponential time complexity, and which ones will have polynomial time complexity?*
 

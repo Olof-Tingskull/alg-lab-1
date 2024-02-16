@@ -1,7 +1,7 @@
 use std::vec;
 use crate::arguments::Arguments;
 
-fn method_a (n: usize, k: usize, p: f64) -> f64 {
+pub fn method_a (n: usize, k: usize, p: f64) -> f64 {
     let mut current_game_streak = vec![0.0; k + 1];
     let mut last_game_streak = vec![0.0; k + 1];
     last_game_streak[0] = 1.0;
@@ -29,7 +29,7 @@ fn method_a (n: usize, k: usize, p: f64) -> f64 {
     return total_prob;
 }
 
-fn method_c (n: usize, k: usize, p: f64) -> f64 {
+pub fn method_c (n: usize, k: usize, p: f64) -> f64 {
     let mut probs = vec![0.; n + 1];
     probs[k] = p.powi(k as i32);
 

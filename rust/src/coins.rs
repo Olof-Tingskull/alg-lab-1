@@ -1,47 +1,103 @@
-use std::{io::{self, BufRead}, vec};
-use std::time::Instant;
-
+use std::{cell::RefCell, time::Instant, vec};
 use crate::arguments;
 
-pub fn gready_min_coins_recursive(total_value: usize, currencies: &Vec<usize>, memory: &mut Option<Vec<usize>>) -> usize {
-    if let Some(memory) = memory {
-        if let Some(&value) = memory.get(total_value) {
-            if value != usize::MAX {
-                return value;
+pub trait GreadyAlorithm {
+    fn new (currencies: Vec<usize>) -> Self;
+    fn run (&mut self, n: usize) -> Option<usize> {
+        return self.reiterate(n);
+    }
+    fn reiterate(&mut self, n: usize) -> Option<usize> {
+        self.gready_min_coins(n)
+    }
+    fn get_currencies(&self) -> Vec<usize>;
+    fn gready_min_coins(&mut self, n: usize) -> Option<usize> {
+        if n == 0 {
+            return Some(0);
+        }
+
+        return self.get_currencies().into_iter().filter_map(|coin| {
+            if coin <= n {
+                if let Some(sub_coins) = self.reiterate(n - coin) {
+                    return Some(1 + sub_coins);
+                }
             }
-        }
-    }
 
-    let mut min_coins = total_value;
-
-    for &currency in currencies {
-        if total_value >= currency {
-            min_coins = min_coins.min(gready_min_coins_recursive(total_value - currency, currencies, memory) + 1);
-        }
+            return None;
+        }).min()
     }
-
-    if let Some(memory) = memory {
-        (*memory)[total_value] = min_coins;
-    }
-    return min_coins;
 }
 
-pub fn gready_min_coins(total_value: usize, currencies: &Vec<usize>) -> usize {
-    let mut min_coins_for_value = vec![0; total_value + 1];
+pub struct MethodA {
+    currencies: Vec<usize>
+}
+impl GreadyAlorithm for MethodA {
+    fn new (currencies: Vec<usize>) -> Self {
+        MethodA { currencies }
+    }   
 
-    for current_value in 1..=total_value {
-        let mut current_min_coins = current_value;
-        
-        for &currency in currencies {
-            if current_value >= currency {
-                current_min_coins = current_min_coins.min(min_coins_for_value[current_value - currency] + 1);
-            }
-        }
+    fn get_currencies(&self) -> Vec<usize> {
+        self.currencies.clone()
+    }
+}
 
-        min_coins_for_value[current_value] = current_min_coins;
+pub struct MethodC {
+    currencies: Vec<usize>,
+    memory: Vec<Option<usize>>,
+}
+
+impl GreadyAlorithm for MethodC {
+    fn new (currencies: Vec<usize>) -> Self {
+        MethodC { currencies, memory: Vec::new() }
     }
 
-    return min_coins_for_value[total_value];
+    fn run (&mut self, n: usize) -> Option<usize> {
+        self.memory = vec![None; n + 1];
+        self.reiterate(n)
+    }
+
+    fn reiterate (&mut self, value: usize) -> Option<usize> {
+        if let Some(memory_coins) = self.memory[value] {
+            return Some(memory_coins);
+        }
+
+        let coins = self.gready_min_coins(value);
+        self.memory[value] = coins;
+        return coins   
+    }
+
+    fn get_currencies(&self) -> Vec<usize> {
+        self.currencies.clone()
+    }
+}
+
+pub struct MethodE {
+    currencies: Vec<usize>,
+    memory: Vec<Option<usize>>,
+}
+
+impl GreadyAlorithm for MethodE {
+    fn new (currencies: Vec<usize>) -> Self {
+        MethodE { currencies, memory: Vec::new() }
+    }
+
+    fn run (&mut self, n: usize) -> Option<usize> {
+        self.memory = vec![None; n + 1];
+        self.memory[0] = Some(0);
+
+        for i in 0..n + 1 {
+            self.memory[i] = self.gready_min_coins(i);
+        }
+
+        self.reiterate(n)
+    }
+
+    fn reiterate(&mut self, n: usize) -> Option<usize> {
+        self.memory[n]
+    }
+
+    fn get_currencies(&self) -> Vec<usize> {
+        self.currencies.clone()
+    }
 }
 
 pub fn kattis () {
@@ -52,5 +108,27 @@ pub fn kattis () {
     let b: usize = arguments.get_arg("b");
     let c: usize = arguments.get_arg("c");
 
-    println!("{}", gready_min_coins(n, &vec![a, b, c]));
+    let mut method = MethodE {
+        currencies: vec![1, a, b, c],
+        memory: Vec::new()
+    };
+
+    if let Some(n) = method.run(n) {
+        println!("{}", n);
+    } else {
+        println!("no solution");
+    }
+}
+
+pub fn test () {
+    let mut method = MethodC {
+        currencies: vec![1, 3, 4],
+        memory: Vec::new()
+    };
+
+    if let Some(n) = method.run(10) {
+        println!("{}", n);
+    } else {
+        println!("no solution");
+    }
 }
